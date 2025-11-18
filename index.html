@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/GenUi/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>code</title>
+    <script type="module" crossorigin src="/GenUi/assets/index-BWTYOOmr.js"></script>
+    <link rel="stylesheet" crossorigin href="/GenUi/assets/index-BBdQI-N5.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- AIzaSyAA6QB9_TwWaRrHjWsicL5fDLq4-y4IGbw -->
+  </body>
+</html>
+ 
+
+
+<!-- import React, { useState } from "react";
+import Navbar from "../Components/Navbar";
+import Select from "react-select";
+import { RiAiGenerate2 } from "react-icons/ri";
+import { VscVscodeInsiders } from "react-icons/vsc";
+import Editor from "@monaco-editor/react";
+import { FaCopy, FaFileExport } from "react-icons/fa";
+import { ImNewTab } from "react-icons/im";
+import { IoIosRefresh, IoMdClose } from "react-icons/io";
+import { GoogleGenAI } from "@google/genai";
+import { RingLoader } from "react-spinners";
+import { toast } from "react-toastify";
+
+const Home = () => {
+  const options = [
+    { value: "html-css", label: "HTML + CSS" },
+    { value: "html-tailwind", label: "HTML + Tailwind CSS" },
+    { value: "html-bootstrap", label: "HTML + Bootstrap" },
+    { value: "html-css-js", label: "HTML + CSS + JS" },
+    { value: "html-tailwind-bootstrap", label: "HTML + Tailwind + Bootstrap" },
+  ];
+
+  const [outputScreen, setOutputScreen] = useState(false);
+  const [tab, setTab] = useState(1);
+  const [prompt, setPrompt] = useState("");
+  const [frameWork, setFrameWork] = useState(options[0]);
+  const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isNewtabOpen, setIsNewtabOpen] = useState(false)
+
+  // ✅ Extract code safely
+  function extractCode(response) {
+    const match = response.match(/```(?:\w+)?\n?([\s\S]*?)```/);
+    return match ? match[1].trim() : response.trim();
+  }
+  // Open in New browser 
+  const openInNewTab = () => {
+    const newWindow = window.open();
+    newWindow.document.write(code);
+    newWindow.document.close();
+  };
+
+
+
+  // The client gets the API key from the environment variable `GEMINI_API_KEY`.
+  const ai = new GoogleGenAI({
+    apiKey: "AIzaSyAA6QB9_TwWaRrHjWsicL5fDLq4-y4IGbw",
+  });
+
+  async function getResponse() {
+    setLoading(true);
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: `
+     You are an experienced programmer with expertise in web development and UI/UX design. You create modern, animated, and fully responsive UI components. You are highly skilled in HTML, CSS, Tailwind CSS, Bootstrap, JavaScript, React, Next.js, Vue.js, Angular, and more.
+
+Now, generate a UI component for: ${prompt}  
+Framework to use: ${frameWork.value}  
+
+Requirements:  
+- The code must be clean, well-structured, and easy to understand.  
+- Optimize for SEO where applicable.  
+- Focus on creating a modern, animated, and responsive UI design.  
+- Include high-quality hover effects, shadows, animations, colors, and typography.  
+- Return ONLY the code, formatted properly in **Markdown fenced code blocks**.  
+- Do NOT include explanations, text, comments, or anything else besides the code.  
+- And give the whole code in a single HTML file.
+      `,
+    });
+    console.log(response.text);
+    setCode(extractCode(response.text));
+    setOutputScreen(true);
+    setLoading(false);
+  }
+
+   const copyCode = async () => {
+     try {
+       await navigator.clipboard.writeText(code);
+       console.log("Content copied to clipboard");
+       toast.success("Code copied successfully")
+     } catch (err) {
+       console.error("Failed to copy: ", err);
+       toast.error("failed to copy")
+     }
+   };
+
+   const downnloadFile = () => {
+     if (!code.trim()) return toast.error("No code to download");
+
+     const fileName = "GenUI-Code.html";
+     const blob = new Blob([code], { type: "text/plain" });
+     let url = URL.createObjectURL(blob);
+     const link = document.createElement("a");
+     link.href = url;
+     link.download = fileName;
+     link.click();
+     URL.revokeObjectURL(url);
+     toast.success("File downloaded");
+   };
+
+
+  return (
+    <>
+      <Navbar />
+
+      <div className="flex items-center px-[100px] justify-between gap-[30px]">
+        <div className="left w-[50%] h-auto py-[30px] rounded-xl bg-[#141319] mt-5 p-[20px]">
+          <h3 className="text-[20px] mt-2  font-semibold sptxt">
+            AI Code Generator
+          </h3>
+          <p className="mt-2  text-gray-400 text-sm">
+            Describe your component and Let AI build it for you..
+          </p>
+          <p className="text-sm font-bold mt-4">Framework</p>
+          <Select
+            className="mt-2"
+            options={options}
+            placeholder="Select an option"
+            styles={{
+              control: (base) => ({
+                ...base,
+                backgroundColor: "#1e1e1e",
+                color: "#fff",
+                borderColor: "#333",
+                boxShadow: "none",
+                ":hover": { borderColor: "#555" },
+              }),
+              menu: (base) => ({
+                ...base,
+                backgroundColor: "#1e1e1e",
+                color: "#fff",
+              }),
+              option: (base, { isFocused, isSelected }) => ({
+                ...base,
+                backgroundColor: isSelected
+                  ? "#333"
+                  : isFocused
+                  ? "#2a2a2a"
+                  : "#1e1e1e",
+                color: "#fff",
+                ":active": { backgroundColor: "#444" },
+              }),
+              singleValue: (base) => ({
+                ...base,
+                color: "#fff",
+              }),
+              placeholder: (base) => ({
+                ...base,
+                color: "#aaa",
+              }),
+              dropdownIndicator: (base) => ({
+                ...base,
+                color: "#aaa",
+                ":hover": { color: "#fff" },
+              }),
+            }}
+            onChange={(e) => {
+              setFrameWork(e.value);
+            }}
+          />
+          <p className="text-sm font-bold mt-5">Describe your component</p>
+          <textarea
+            onChange={(e) => {
+              setPrompt(e.target.value);
+            }}
+            value={prompt}
+            className="w-full min-h-[200px] rounded-xl text-sm p-[10px] mt-1 bg-[#09090b]"
+            placeholder="Describe your component in detail..."
+          ></textarea>
+          <div className="flex justify-between">
+            <p className="mt-2 text-sm text-gray-500">
+              Click on the generate button to generate your code.
+            </p>
+            <button
+              onClick={getResponse}
+              className="generate flex items-center p-[4px] rounded-lg text-lg border-0 bg-gradient-to-r from-purple-400  to-purple-800 mt-2  gap-1 px-[10px] transition-all hover:opacity-[.8] "
+            >
+              {loading === false ? (
+                <>
+                  <i>
+                    <RiAiGenerate2 />
+                  </i>
+                </>
+              ) : (
+                ""
+              )}
+              {loading === true ? (
+                <>
+                  <RingLoader color="white" size={18} />
+                </>
+              ) : (
+                " "
+              )}
+              Generate
+            </button>
+          </div>
+        </div>
+
+        {/* <............................................................./> */}
+
+        <div className="right relative mt-2 w-[50%] h-[80vh] bg-[#141319] rounded-xl ">
+          {outputScreen === false ? (
+            <>
+              <div className="skeleton w-full h-full flex items-center flex-col justify-center">
+                <div className="circle p-[20px] h-[70px] flex items-center justify-center text-[30px] w-[70px] rounded-[50%] bg-gradient-to-r from-purple-400  to-purple-800 ">
+                  <VscVscodeInsiders />
+                </div>
+                <p className="text-gray-500 text-[14px] mt-3">
+                  Your component and code will appear here.
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="top w-full bg-[#17171c] h-[50px] flex items-center gap-3 px-[20px]">
+                <button
+                  onClick={() => {
+                    setTab(1);
+                  }}
+                  className={`btn w-[50%] p-[10px]  rounded-xl transition-all ${
+                    tab === 1 ? "bg-[#333]" : ""
+                  }`}
+                >
+                  Code
+                </button>
+                <button
+                  onClick={() => {
+                    setTab(2);
+                  }}
+                  className={`btn w-[50%] p-[10px]  rounded-xl transition-all ${
+                    tab === 2 ? "bg-[#333]" : ""
+                  }`}
+                >
+                  Preview
+                </button>
+              </div>
+
+              <div className="top2 w-full bg-[#17171c] justify-between h-[50px] flex items-center gap-3 px-[20px]">
+                <div className="left">
+                  <p className="font-bold">Code Editor</p>
+                </div>
+                <div className="right flex items-center gap-[10px]">
+                  {tab === 1 ? (
+                    <>
+                      <button
+                        onClick={copyCode}
+                        className="copy w-[40px] h-[40px] rounded-xl  border-[1px] border-gray-600 flex items-center justify-center transition-all hover:bg-[#333]"
+                      >
+                        <FaCopy />
+                      </button>
+                      <button
+                        onClick={downnloadFile}
+                        className="export w-[40px] h-[40px] rounded-xl  border-[1px] border-gray-600 flex items-center justify-center transition-all hover:bg-[#333]"
+                      >
+                        <FaFileExport />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          setIsNewtabOpen(true);
+                        }}
+                        className="copy w-[40px] h-[40px] rounded-xl border-[1px] border-gray-600 flex items-center justify-center transition-all hover:bg-[#333]"
+                      >
+                        <ImNewTab />
+                      </button>
+
+                     
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="editor h-full">
+                {tab === 1 ? (
+                  <>
+                    <Editor
+                      value={code}
+                      height="100%"
+                      theme="vs-dark"
+                      language="html"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <iframe
+                      srcDoc={code}
+                      className="preview w-full h-full flex items-center justify-center"
+                    ></iframe>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      {isNewtabOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
+          <div className="relative w-[90%] h-[90%] bg-white rounded-xl overflow-hidden shadow-lg">
+            <button
+              onClick={() => setIsNewtabOpen(false)}
+              className="absolute top-3 right-3 w-[35px] h-[35px] flex items-center justify-center rounded-full bg-gray-800 text-white hover:bg-gray-700"
+            >
+              <IoMdClose />
+            </button>
+            <iframe srcDoc={code} className="w-full h-full border-0"></iframe>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default Home; -->
